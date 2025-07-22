@@ -190,7 +190,7 @@
     <button type="submit">Send</button>
   </form>
 </dialog>
-
+  
 <style>
   /* === Chatbot button === */
   #chatToggle{
@@ -330,83 +330,75 @@ chatForm.addEventListener('submit', e=>{
   <!-- Dark-mode toggle -->
 <button id="themeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
 
-<style>
-  #themeToggle{
-    position:fixed;
-    top:1.2rem;
-    right:1.2rem;
-    width:2.4rem;
-    height:2.4rem;
-    border-radius:50%;
-    border:none;
-    background:var(--card);
-    box-shadow:var(--shadow);
-    cursor:pointer;
-    font-size:1.1rem;
-    z-index:999;
-    transition:transform .2s;
-  }
-  #themeToggle:hover{transform:scale(1.1)}
-
-  /* dark overrides */
-  [data-theme="dark"]{
-    --bg:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);
-    --card:rgba(30,41,59,.75);
-  }
-  [data-theme="dark"] body{color:#f9fafb}
-  [data-theme="dark"] .msgBot{background:#374151;color:#f9fafb}
-  [data-theme="dark"] .msgUser{background:#4f46e5;color:#fff}
-</style>
-
-<script>
-/* === dark-mode toggle === */
-const themeBtn = document.getElementById('themeToggle');
-function applyTheme(theme){
-  document.documentElement.setAttribute('data-theme', theme);
-  themeBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+<style>/* ========= NEON-YELLOW / CYAN GRID THEME ========= */
+:root{
+  /* neon palette */
+  --bg:radial-gradient(ellipse at top, #001122 0%, #000 100%);
+  --yellow:#fcee09;
+  --cyan:#0ff5e6;
+  --card:rgba(15,15,15,.55);
+  --radius:12px;
+  --shadow:0 0 15px var(--yellow), 0 0 30px var(--cyan);
 }
-function initTheme(){
-  const stored = localStorage.getItem('theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const theme = stored ? stored : (prefersDark ? 'dark' : 'light');
-  applyTheme(theme);
+
+/* glowing grid background SVG (inline, no external file) */
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:2rem;
+  font-family:Poppins,sans-serif;
+  color:#fff;
+  background:
+    /* animated neon grid */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cdefs%3E%3Cfilter id='glow'%3E%3CfeGaussianBlur stdDeviation='2' result='coloredBlur'/%3E%3CfeMerge%3E%3CfeMergeNode in='coloredBlur'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3C/defs%3E%3Cg stroke='%230ff5e6' stroke-width='.2' filter='url(%23glow)'%3E%3Cpath d='M0 10h100M0 20h100M0 30h100M0 40h100M0 50h100M0 60h100M0 70h100M0 80h100M0 90h100'/%3E%3Cpath d='M10 0v100M20 0v100M30 0v100M40 0v100M50 0v100M60 0v100M70 0v100M80 0v100M90 0v100'/%3E%3C/g%3E%3C/svg%3E"),
+    var(--bg);
+  background-size:80px 80px, cover;
+  animation:gridMove 12s linear infinite;
 }
-initTheme();
-themeBtn.addEventListener('click', ()=>{
-  const current = document.documentElement.getAttribute('data-theme') || 'light';
-  const next = current === 'light' ? 'dark' : 'light';
-  applyTheme(next);
-  localStorage.setItem('theme', next);
-});
+@keyframes gridMove{
+  0%{background-position:0 0, 0 0;}
+  100%{background-position:80px 80px, 0 0;}
+}
 
-/* === graceful clipboard fallback === */
-document.getElementById('shareBtn').addEventListener('click', ()=>{
-  const url = window.location.href.split('?')[0];
-  const params = new URLSearchParams({
-    p: profession.value,
-    c: culture.value,
-    a: academic.value,
-    i: interests.value
-  });
-  const shareUrl = `${url}?${params}`;
-  if(navigator.clipboard){
-    navigator.clipboard.writeText(shareUrl).then(()=>alert('Profile link copied!'));
-  }else{
-    /* fallback for older browsers */
-    const ta = document.createElement('textarea');
-    ta.value = shareUrl;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    alert('Profile link copied!');
-  }
-});
+/* typography */
+h1,h2{font-weight:700;margin:.2em 0;letter-spacing:.02em}
+h1{font-size:clamp(1.8rem,4.5vw,3rem);color:var(--yellow);text-shadow:0 0 8px var(--yellow)}
+p{color:#d1f7ff}
 
-/* === small UX niceties === */
-/* keep chat scrolled to bottom */
-const observer = new MutationObserver(()=>chatLog.scrollTop = chatLog.scrollHeight);
-observer.observe(chatLog, {childList:true, subtree:true});
+/* hero wrapper */
+.hero{display:flex;flex-direction:column;gap:1.5rem;text-align:center;max-width:900px;width:100%}
+
+/* stat pills with neon glow */
+.stats{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin:1.2rem 0}
+.stat{background:var(--card);color:var(--cyan);padding:.8rem 1.4rem;border-radius:var(--radius);border:1px solid var(--cyan);box-shadow:0 0 10px var(--cyan);transition:transform .3s, box-shadow .3s}
+.stat:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 0 20px var(--yellow), 0 0 40px var(--cyan)}
+.stat strong{display:block;font-size:1.1rem;color:var(--yellow)}
+
+/* form glass card */
+form{background:var(--card);backdrop-filter:blur(14px) saturate(180%);border:1px solid var(--cyan);border-radius:var(--radius);padding:2rem;display:grid;gap:1.2rem;box-shadow:var(--shadow)}
+label{font-size:.85rem;font-weight:600;color:#fff}
+input,select,textarea{color:#fff;background:rgba(0,0,0,.35);border:1px solid var(--cyan);border-radius:8px;padding:.8rem;font-size:.9rem;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--yellow);box-shadow:0 0 8px var(--yellow)}
+.char-count{font-size:.7rem;text-align:right;color:var(--yellow)}
+
+/* buttons */
+button{background:linear-gradient(135deg,var(--yellow),var(--cyan));border:none;color:#000;font-weight:700;padding:.9rem;border-radius:var(--radius);cursor:pointer;transition:transform .2s, box-shadow .2s}
+button:hover{transform:translateY(-2px);box-shadow:0 0 15px var(--yellow), 0 0 30px var(--cyan)}
+
+/* match cards */
+.match{background:rgba(0,0,0,.45);border:1px solid var(--yellow);border-radius:var(--radius);padding:1rem;margin-bottom:.8rem;box-shadow:0 0 10px var(--yellow)}
+.match strong{color:var(--yellow)}
+.match small{color:var(--cyan)}
+
+/* dark-mode overrides */
+[data-theme="dark"] body{--bg:radial-gradient(ellipse at top, #001122 0%, #000 100%)}
+.hidden{display:none}
+
+/* responsive */
+@media(max-width:600px){body{padding:1rem}}
 </script>
 </body>
 </html>
