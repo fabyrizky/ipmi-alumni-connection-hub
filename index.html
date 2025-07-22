@@ -172,5 +172,241 @@
       if(p.get('p')) document.getElementById('profileForm').requestSubmit();
     });
   </script>
+  <!-- AI Chatbot Assistant -->
+<button id="chatToggle" aria-label="Open AI Assistant" title="AI Assistant">
+  💬
+</button>
+
+<dialog id="chatDialog">
+  <header>
+    <h3>IPMI AI Assistant</h3>
+    <button id="closeChat" aria-label="Close">&times;</button>
+  </header>
+
+  <div id="chatLog" aria-live="polite"></div>
+
+  <form id="chatForm">
+    <input id="chatInput" maxlength="200" placeholder="Ask anything…" autocomplete="off" required>
+    <button type="submit">Send</button>
+  </form>
+</dialog>
+
+<style>
+  /* === Chatbot button === */
+  #chatToggle{
+    position:fixed;
+    bottom:1.5rem;
+    right:1.5rem;
+    width:3.2rem;
+    height:3.2rem;
+    border-radius:50%;
+    background:var(--accent);
+    color:#fff;
+    font-size:1.4rem;
+    border:none;
+    box-shadow:0 4px 12px rgba(0,0,0,.15);
+    cursor:pointer;
+    z-index:999;
+    transition:transform .2s;
+  }
+  #chatToggle:hover{transform:scale(1.1)}
+
+  /* === Dialog === */
+  #chatDialog{
+    position:fixed;
+    bottom:5.5rem;
+    right:1.5rem;
+    width:clamp(260px,90vw,320px);
+    border:none;
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    background:var(--card);
+    backdrop-filter:blur(12px);
+    padding:0;
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    max-height:70vh;
+  }
+  #chatDialog header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:.75rem 1rem;
+    border-bottom:1px solid #e5e7eb;
+  }
+  #chatDialog h3{margin:0;font-size:1rem}
+  #closeChat{
+    background:none;
+    border:none;
+    font-size:1.2rem;
+    cursor:pointer;
+  }
+  #chatLog{
+    flex:1;
+    overflow-y:auto;
+    padding:.5rem 1rem;
+    font-size:.85rem;
+    display:flex;
+    flex-direction:column;
+    gap:.4rem;
+  }
+  .msgUser{align-self:flex-end;background:#dbeafe;border-radius:12px 12px 0 12px;padding:.5rem .8rem;max-width:85%}
+  .msgBot{align-self:flex-start;background:#f3f4f6;border-radius:12px 12px 12px 0;padding:.5rem .8rem;max-width:85%}
+  #chatForm{
+    display:flex;
+    gap:.4rem;
+    padding:.5rem;
+    border-top:1px solid #e5e7eb;
+  }
+  #chatInput{
+    flex:1;
+    padding:.5rem;
+    font-size:.85rem;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+  }
+  #chatForm button{
+    padding:.5rem .8rem;
+    font-size:.85rem;
+  }
+</style>
+  <script>
+/* === Chatbot state === */
+const chatToggle   = document.getElementById('chatToggle');
+const chatDialog   = document.getElementById('chatDialog');
+const closeChat    = document.getElementById('closeChat');
+const chatForm     = document.getElementById('chatForm');
+const chatInput    = document.getElementById('chatInput');
+const chatLog      = document.getElementById('chatLog');
+
+/* === open / close === */
+chatToggle.addEventListener('click', () => chatDialog.showModal());
+closeChat.addEventListener('click', () => chatDialog.close());
+chatDialog.addEventListener('click', e => { if (e.target === chatDialog) chatDialog.close(); });
+
+/* === quick access to profile data === */
+function getProfileSnippet(){
+  const p = profession.value || 'your profession';
+  const c = culture.value   || 'your culture';
+  const a = academic.value  || 'your academic background';
+  const i = interests.value || 'your interests';
+  return `${p} | ${c} | ${a} | ${i}`;
+}
+
+/* === mock AI engine === */
+function mockAI(userText){
+  const txt = userText.toLowerCase();
+  /* greetings */
+  if (/hi|hello|hey/.test(txt)) return `👋 Hi! I’m IPMI AI. How can I help you today?`;
+  /* profile */
+  if (/profile|my info|about me/.test(txt)) return `Here’s what I know about you: ${getProfileSnippet()}`;
+  /* matchmaking */
+  if (/match|alumni|network/.test(txt)) return `You currently have ${alumni.length} alumni in the network. Submit the form above to discover your top matches!`;
+  /* fallback */
+  return `I'm still learning. Try asking about your profile, matches, or say "hello".`;
+}
+
+/* === render messages === */
+function renderMsg(text, who='bot'){
+  const div = document.createElement('div');
+  div.className = who==='user' ? 'msgUser' : 'msgBot';
+  div.textContent = text;
+  chatLog.appendChild(div);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+/* === handle user input === */
+chatForm.addEventListener('submit', e=>{
+  e.preventDefault();
+  const txt = chatInput.value.trim();
+  if(!txt) return;
+  renderMsg(txt,'user');
+  chatInput.value='';
+  /* simulate typing delay */
+  setTimeout(()=>renderMsg(mockAI(txt),'bot'),600);
+});
+</script>
+  <!-- Dark-mode toggle -->
+<button id="themeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+
+<style>
+  #themeToggle{
+    position:fixed;
+    top:1.2rem;
+    right:1.2rem;
+    width:2.4rem;
+    height:2.4rem;
+    border-radius:50%;
+    border:none;
+    background:var(--card);
+    box-shadow:var(--shadow);
+    cursor:pointer;
+    font-size:1.1rem;
+    z-index:999;
+    transition:transform .2s;
+  }
+  #themeToggle:hover{transform:scale(1.1)}
+
+  /* dark overrides */
+  [data-theme="dark"]{
+    --bg:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);
+    --card:rgba(30,41,59,.75);
+  }
+  [data-theme="dark"] body{color:#f9fafb}
+  [data-theme="dark"] .msgBot{background:#374151;color:#f9fafb}
+  [data-theme="dark"] .msgUser{background:#4f46e5;color:#fff}
+</style>
+
+<script>
+/* === dark-mode toggle === */
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  themeBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+function initTheme(){
+  const stored = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = stored ? stored : (prefersDark ? 'dark' : 'light');
+  applyTheme(theme);
+}
+initTheme();
+themeBtn.addEventListener('click', ()=>{
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = current === 'light' ? 'dark' : 'light';
+  applyTheme(next);
+  localStorage.setItem('theme', next);
+});
+
+/* === graceful clipboard fallback === */
+document.getElementById('shareBtn').addEventListener('click', ()=>{
+  const url = window.location.href.split('?')[0];
+  const params = new URLSearchParams({
+    p: profession.value,
+    c: culture.value,
+    a: academic.value,
+    i: interests.value
+  });
+  const shareUrl = `${url}?${params}`;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(shareUrl).then(()=>alert('Profile link copied!'));
+  }else{
+    /* fallback for older browsers */
+    const ta = document.createElement('textarea');
+    ta.value = shareUrl;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert('Profile link copied!');
+  }
+});
+
+/* === small UX niceties === */
+/* keep chat scrolled to bottom */
+const observer = new MutationObserver(()=>chatLog.scrollTop = chatLog.scrollHeight);
+observer.observe(chatLog, {childList:true, subtree:true});
+</script>
 </body>
 </html>
