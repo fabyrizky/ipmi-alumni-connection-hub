@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IPMI Alumni Networking Bridge</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="AI-powered alumni networking for IPMI International Business School — 3 000+ members, 50+ countries, 100+ professions.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: linear-gradient(135deg,#f5f7fa 0%, #c3cfe2 100%);
+      --card: rgba(255,255,255,.65);
+      --accent:#6366f1;
+      --radius:16px;
+      --shadow:0 8px 32px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box;font-family:Poppins,sans-serif}
+    body{margin:0;background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;color:#1e293b}
+    h1,h2{font-weight:700;margin:.2em 0}
+    h1{font-size:clamp(1.8rem,4vw,2.6rem)}
+    p{line-height:1.6;font-size:.95rem}
+    .hero{display:flex;flex-direction:column;gap:1rem;text-align:center;max-width:900px}
+    .stats{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;margin:1.2rem 0}
+    .stat{background:var(--card);padding:.8rem 1.4rem;border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(10px);transition:transform .3s}
+    .stat:hover{transform:translateY(-4px)}
+    .stat strong{display:block;font-size:1.1rem;color:var(--accent)}
+    form{background:var(--card);padding:2rem;border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(10px);display:grid;gap:1rem}
+    label{font-size:.85rem;font-weight:600}
+    input,select,textarea{width:100%;padding:.8rem;border:1px solid #d1d5db;border-radius:8px;font-size:.9rem;background:#fff}
+    .char-count{font-size:.75rem;text-align:right;color:#6b7280}
+    button{background:var(--accent);color:#fff;border:none;padding:.9rem;border-radius:8px;font-weight:600;cursor:pointer;transition:background .3s}
+    button:hover{background:#4f46e5}
+    .results{margin-top:1.5rem}
+    .match{background:#fff;padding:1rem;border-radius:8px;box-shadow:var(--shadow);margin-bottom:.8rem}
+    .match small{color:#6b7280}
+    .hidden{display:none}
+    @media(max-width:600px){body{padding:1rem}}
+  </style>
+</head>
+<body>
+  <main class="hero">
+    <h1>IPMI Alumni Networking Bridge</h1>
+    <p>AI-powered matchmaking for meaningful professional connections</p>
+
+    <div class="stats">
+      <div class="stat"><strong>3 000+</strong>Alumni</div>
+      <div class="stat"><strong>50+</strong>Countries</div>
+      <div class="stat"><strong>100+</strong>Professions</div>
+    </div>
+
+    <form id="profileForm">
+      <label>Profession
+        <input required id="profession" list="professions" placeholder="e.g., Data Scientist">
+        <datalist id="professions">
+          <option>Data Scientist</option><option>Product Manager</option><option>Entrepreneur</option>
+          <option>UX Designer</option><option>Finance Analyst</option><option>Marketing Lead</option>
+        </datalist>
+      </label>
+
+      <label>Cultural Background
+        <input required id="culture" list="cultures" placeholder="e.g., Indonesian">
+        <datalist id="cultures">
+          <option>Indonesian</option><option>American</option><option>Singaporean</option>
+          <option>Malaysian</option><option>Australian</option><option>German</option>
+        </datalist>
+      </label>
+
+      <label>Academic Background
+        <input required id="academic" list="academics" placeholder="e.g., MBA">
+        <datalist id="academics">
+          <option>MBA</option><option>Computer Science</option><option>Finance</option>
+          <option>Marketing</option><option>Engineering</option><option>Psychology</option>
+        </datalist>
+      </label>
+
+      <label>Interests & Goals
+        <textarea required id="interests" maxlength="140" placeholder="e.g., sustainability, startup ecosystems, mentoring" rows="3"></textarea>
+        <div class="char-count"><span id="charsLeft">140</span> characters left</div>
+      </label>
+
+      <button type="submit">Find My Matches</button>
+    </form>
+
+    <section id="results" class="results hidden">
+      <h2>Your Top Matches</h2>
+      <div id="matchesList"></div>
+      <button id="shareBtn">Share My Profile Link</button>
+    </section>
+  </main>
+
+  <script>
+    /* === character counter === */
+    const interests = document.getElementById('interests');
+    const charsLeft = document.getElementById('charsLeft');
+    interests.addEventListener('input', () => {
+      charsLeft.textContent = 140 - interests.value.length;
+    });
+
+    /* === mock DB (realistic sample) === */
+    const alumni = [
+      {name:'Aisyah Putri', profession:'Data Scientist', culture:'Indonesian', academic:'Computer Science', interests:'AI ethics, sustainability, mentoring'},
+      {name:'Carlos Mendoza', profession:'Product Manager', culture:'American', academic:'MBA', interests:'SaaS, startup ecosystems, mentoring'},
+      {name:'Wei Ling Tan', profession:'UX Designer', culture:'Singaporean', academic:'Psychology', interests:'design systems, sustainability'},
+      {name:'Rajesh Kumar', profession:'Entrepreneur', culture:'Malaysian', academic:'MBA', interests:'fintech, impact investing'},
+      {name:'Sophie Müller', profession:'Finance Analyst', culture:'German', academic:'Finance', interests:'green bonds, ESG reporting'}
+    ];
+
+    /* === match engine (client-side) === */
+    function score(a,b){
+      let s=0;
+      if(a.profession.toLowerCase()===b.profession.toLowerCase()) s+=2;
+      if(a.culture.toLowerCase()===b.culture.toLowerCase()) s+=1;
+      if(a.academic.toLowerCase()===b.academic.toLowerCase()) s+=1;
+      const kwA=a.interests.toLowerCase().split(/[ ,]+/);
+      const kwB=b.interests.toLowerCase().split(/[ ,]+/);
+      kwA.forEach(k=>{if(kwB.includes(k)) s+=1});
+      return s;
+    }
+
+    /* === form submit === */
+    document.getElementById('profileForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const user = {
+        profession: profession.value.trim(),
+        culture: culture.value.trim(),
+        academic: academic.value.trim(),
+        interests: interests.value.trim()
+      };
+      const ranked = [...alumni]
+        .map(a=>({...a, score:score(user,a)}))
+        .sort((a,b)=>b.score-a.score)
+        .slice(0,3);
+      displayMatches(ranked);
+    });
+
+    function displayMatches(list){
+      const container = document.getElementById('matchesList');
+      container.innerHTML='';
+      list.forEach(m=>{
+        const div=document.createElement('div');
+        div.className='match';
+        div.innerHTML=`<strong>${m.name}</strong> – ${m.profession}<br>
+                       <small>${m.culture}, ${m.academic}</small><br>
+                       <small>Shared interests: ${m.interests}</small>`;
+        container.appendChild(div);
+      });
+      document.getElementById('results').classList.remove('hidden');
+    }
+
+    /* === share link === */
+    document.getElementById('shareBtn').addEventListener('click', ()=>{
+      const url = window.location.href.split('?')[0];
+      const params = new URLSearchParams({
+        p: profession.value,
+        c: culture.value,
+        a: academic.value,
+        i: interests.value
+      });
+      const shareUrl = `${url}?${params}`;
+      navigator.clipboard.writeText(shareUrl).then(()=>alert('Profile link copied!'));
+    });
+
+    /* === autofill from URL === */
+    window.addEventListener('DOMContentLoaded', ()=>{
+      const p = new URLSearchParams(location.search);
+      if(p.get('p')) profession.value = p.get('p');
+      if(p.get('c')) culture.value   = p.get('c');
+      if(p.get('a')) academic.value  = p.get('a');
+      if(p.get('i')) interests.value = p.get('i');
+      if(p.get('p')) document.getElementById('profileForm').requestSubmit();
+    });
+  </script>
+</body>
+</html>
